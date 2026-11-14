@@ -1,0 +1,4 @@
+agentdojo==0.1.35
+anthropic==0.125.0  # AgentDojo 0.1.35 breaks on anthropic 1.x/2.x
+python-dotenv
+matplotlib

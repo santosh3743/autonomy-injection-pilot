@@ -1,0 +1,22 @@
+# Secrets & Local Environment
+.env
+.env.*
+!.env.example
+*.env
+
+# Python artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+venv/
+
+# Run logs & raw execution traces (only results/ reports are committed)
+runs/
+scratch/
+
+# System & IDE files
+.DS_Store
+.vscode/
+.idea/
