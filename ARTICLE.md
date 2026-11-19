@@ -4,6 +4,18 @@
 
 ---
 
+## Why I ran this
+
+About six to eight months ago, my team at Zeron started building agents into our product: agents that act on behalf of our users, with enough permissions to run checks and analysis and report back.
+
+We shipped them in phases. At first they only made suggestions. Then we gave them tools, read-only at first. At every step, our customers asked for the next one. "If it can suggest, can it draft it for me?" Once they trusted the drafts: "Can it act on it, at least up to a point?" I watched trust and autonomy grow together, one release at a time.
+
+For a security company holding a lot of confidential customer data, that made me uneasy. Prompt injection sits at the top of OWASP's Top 10 for LLM applications, and stories of agents doing things nobody intended keep surfacing. So we did what security teams do: we bounded the agents. We defined five levels of autonomy, based on how much access an agent gets and how much it can do on its own.
+
+But a framework isn't evidence. I wanted to know what actually happens at each level when someone deliberately tries to make an agent do something we never planned. Our production agents and our customers' data were not the place to find out. So I rebuilt the five levels on AgentDojo, an open benchmark with simulated banking and Slack environments, and attacked them.
+
+---
+
 ## Executive Summary
 
 As AI systems move from answering questions to taking actions (moving money, messaging people, changing records), a tension appears: **autonomy versus safety**.
@@ -211,12 +223,16 @@ It caught most attacks with hindsight, but it is noisy and cannot undo an action
 
 ---
 
-## Conclusion
+## What I'd tell anyone deploying agents
 
-Moving from chat to agents is not just an interface change; it is a change in who is authorized to act.
+The result that stayed with me isn't that full autonomy failed. It's *why* it failed. Today's models can't reliably tell what to trust in their environment: an instruction planted in a bill reads the same to them as one from the user.
 
-In this pilot, an agent with full autonomy was steered by planted text most of the time. Every limit tested closed most of that gap, but each had a cost, and each had a blind spot: model reviewers missed attacks dressed up as the requested action, and "read-only" missed requests that leave the system.
+The only level that stopped every banking attack was the one where the model's judgment didn't matter: fixed rules. That worked, but it meant relying on rules instead of the model. And I wrote those rules knowing the attacks, so I don't read that 0% as a general guarantee.
 
-The practical takeaway is to layer defenses that fail differently: hard checks on the actions that matter, model review for what rules cannot express, outbound requests treated as actions, and after-the-fact monitoring to catch what slips through. The next questions are how much the harness itself changes these numbers, and whether these patterns hold for other models.
+So my advice, from one pilot and years of securing systems:
+
+- **Apply least privilege to agents the way you would to people.** Give each agent only the access its job needs, whether it runs in your internal network, outside it, or inside your product.
+- **Build the harness as carefully as you choose the model.** In this pilot, the permission layer around the model did most of the defending. It decides what an agent can do when it gets things wrong.
+- **Design for the worst case.** Assume your agent will, at some point, follow instructions that didn't come from you. Decide in advance what it must never be able to do when that happens.
 
 Code, results and raw logs: [github.com/santosh3743/autonomy-injection-pilot](https://github.com/santosh3743/autonomy-injection-pilot).
